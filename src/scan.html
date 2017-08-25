@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Web Security Connect Pro!</title>
+    <link rel="stylesheet" href="./css/font-awesome.min.css">
+    <link rel="stylesheet" href="./css/styles.css">
+  </head>
+  <body>
+    <header>
+      <div class="logo-container">
+        <img src="./images/securityLogo.png" alt="">
+      </div>
+      <div class="logo-text-container">
+        <h5>Web Security</h5>
+        <h4>Connect Prime</h4>
+      </div>
+    </header>
+    <section id="files-header">
+      <div class="left">
+        System Scan
+      </div>
+      <div class="right">
+        <button onclick="javascript:window.location.href='./index.html'">Back to menu</button>
+      </div>
+    </section>
+    <section id="scanSection">
+      
+
+      <span id="scanHeading">Scanning...</span>
+      <span id="scanSubHeading">sdasdsadsadas</span>
+      <div id="myProgress">
+        <div id="myBar"></div>
+      </div>
+
+    </section>
+
+    <script>
+      function move() {
+        let filesarr = [
+          "My Computers",
+          "My Networks",
+          "My Documents",
+          "Hard Drive #1",
+          "Cookies",
+          "System Events",
+          "System Console",
+          "System Registry",
+          "Program Files",
+          "Windows"
+        ];
+        var elem = document.getElementById("myBar");   
+        var width = 1;
+        var id = setInterval(frame, 10);
+        let sLem = document.getElementById("scanSubHeading");
+        function frame() {
+          if (width >= 100) {
+            clearInterval(id);
+            sLem.innerText = "Completed";
+          } else {
+            width++;
+            sLem.innerText = filesarr[Math.ceil(Math.random()*10)];
+            elem.style.width = width + '%'; 
+          }
+        }
+      }
+
+      var timer = 0;
+
+      let s = setInterval(function() {
+        if (timer >= 2000) {
+          let element = document.getElementById("scanHeading");
+          element.innerText = "Scanning Complete";
+          window.location.href = "./index.html";
+          clearInterval(s);
+        }
+        timer++;
+        move();
+        console.log(timer);
+      }, 30);
+
+
+      
+      
+    </script>
+  </body>
+</html>
