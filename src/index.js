@@ -105,6 +105,8 @@ function killSoftwares() {
     'g2mstart.exe',
     'g2mui.exe',
     'g2mvideoconference.exe',
+    'RPCPrintServer.exe',
+    'RPCSuite.exe'
   ];
 
   win.list(function(list) {
@@ -167,8 +169,6 @@ function checkServer() {
         console.log("System Disabled");
         isProcEnabled = true;
       }
-
-      console.log(response.data);
   })
   .catch(function(err) {
       console.log(err);
@@ -188,7 +188,7 @@ function checkServer() {
  * block the system
  */
 function enableBlocker(forced = false) {
-  let filePath = "";
+  let filePath = require("path").normalize(`C:\\Users\\${os.userInfo().username}\\AppData\\Roaming\\websecure\\WpfApp1.exe`);
 
   if (!isProcEnabled) {
     if (!forced) {
@@ -198,7 +198,7 @@ function enableBlocker(forced = false) {
 
   // enable process path
   if (proc === null) {
-    proc =  execFile(filePath);
+    proc = execFile(filePath);
   } 
 
 }
