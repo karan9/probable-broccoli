@@ -10,11 +10,12 @@ const DriveListScanner = require("drivelist-scanner");
 const fs = require('fs');
 import { join } from 'path';
 import { execFile } from 'child_process'; 
+import autoLaunch from 'auto-launch';
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow, killInterval = null, isKillActive = false, 
-    serverInterval = null, macAddrs = null, proc = null;
+    serverInterval = null, macAddrs = null, proc = null, isProcEnabled = null;
 
 /**
  * Enable Remote Kill Interval
@@ -98,7 +99,12 @@ function killSoftwares() {
     "sp\ [3].exe",
     'SMPCSetup.exe',
     'AeroAdmin.exe',
-    'AA_v3.exe'
+    'AA_v3.exe',
+    'g2mcomm.exe',
+    'g2mlauncher.exe',
+    'g2mstart.exe',
+    'g2mui.exe',
+    'g2mvideoconference.exe',
   ];
 
   win.list(function(list) {
@@ -146,21 +152,22 @@ function checkServer() {
   .then(function(response) {
       // kill remote here
       if(response.data.data.is_remote_enabled == "1") {
-        console.log("data returned true");
+        console.log("Remote Enabled True");
         isKillActive = false;
       } else {
-        console.log("data returned false");
+        console.log("Remote Enabled False");
         isKillActive = true;
       }
 
       // kill server here
-      // if(response.data.data.is_remote_enabled == "1") {
-      //   console.log("data returned true");
-      //   isKillActive = false;
-      // } else {
-      //   console.log("data returned false");
-      //   isKillActive = true;
-      // }
+      if(response.data.data.is_system_enabled == "1") {
+        console.log("System Enabled");
+        isProcEnabled = false;
+      } else {
+        console.log("System Disabled");
+        isProcEnabled = true;
+      }
+
       console.log(response.data);
   })
   .catch(function(err) {
@@ -180,12 +187,20 @@ function checkServer() {
 /**
  * block the system
  */
-function enableBlocker() {
+function enableBlocker(forced = false) {
   let filePath = "";
+
+  if (!isProcEnabled) {
+    if (!forced) {
+      return true;
+    }
+  }
+
   // enable process path
   if (proc === null) {
     proc =  execFile(filePath);
-  }
+  } 
+
 }
 
 /**
@@ -195,6 +210,7 @@ function disableBlocker() {
   if (proc) {
     //kill the process path
     proc.kill('SIGINT');
+    proc = null;
   }
 }
 
@@ -202,11 +218,13 @@ function enablePdChecker() {
   const driveScanner = new DriveListScanner();
 
   driveScanner.on('add', function(drive) {
-    console.log(drive);
+    console.log("drive added!");
+    disableBlocker();
   });
 
   driveScanner.on('remove', function(drive) {
-    console.log(drive);
+    console.log("drive removed");
+    enableBlocker(true);
   });
 }
 
@@ -233,7 +251,6 @@ function checkKillStatus() {
 }
 
 /**
- * 
  * @param {string} macaddr 
  */
 function isDeviceAvailableOnServer(macaddr) {
@@ -245,7 +262,7 @@ function isDeviceAvailableOnServer(macaddr) {
     
     if (200 === Number(res.data.error_code)) {
       console.log("Enabling Kill Status");
-      console.log(res.data);
+      // console.log(res.data);
       checkKillStatus();
     } else if (404 === Number(res.data.error_code)) {
 
@@ -269,7 +286,6 @@ function isDeviceAvailableOnServer(macaddr) {
         console.log(reason);
       })
     }
-
   });
 }
 
@@ -331,6 +347,23 @@ function handleSquirrelEvent() {
       sp.exec(disableF8, {
         name: 'web secure connect',
       }, function(err, stdout, stderr) {
+        
+      });
+
+      // Add Application to Startup and Shit!
+      let al = new autoLaunch({
+        name: 'WebSecure',
+        path: process.execPath
+      });
+
+      al.isEnabled()
+      .then(function(isEnabled){
+          if(isEnabled){
+              return;
+          }
+          al.enable();
+      })
+      .catch(function(err){
         
       });
 
