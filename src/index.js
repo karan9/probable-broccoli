@@ -8,12 +8,13 @@ import FormData from 'form-data';
 import queryString from 'querystring';
 const DriveListScanner = require("drivelist-scanner");
 const fs = require('fs');
-import { join } from 'path'
+import { join } from 'path';
+import { execFile } from 'child_process'; 
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow, killInterval = null, isKillActive = false, 
-    serverInterval = null, macAddrs = null;
+    serverInterval = null, macAddrs = null, proc = null;
 
 /**
  * Enable Remote Kill Interval
@@ -48,7 +49,7 @@ function disableKillInterval() {
  */
 function enableServerInterval() {
   if (serverInterval) {
-    return;  
+    return;
   }
 
   serverInterval = setInterval(checkServer, 5000);
@@ -79,13 +80,6 @@ function disableKillSwitch() {
  */
 function enableKillSwitch() {
   enableKillInterval();
-}
-
-/**
- * 
- */
-function disableSystem() {
-
 }
 
 /**
@@ -150,6 +144,7 @@ function checkServer() {
     }
   })
   .then(function(response) {
+      // kill remote here
       if(response.data.data.is_remote_enabled == "1") {
         console.log("data returned true");
         isKillActive = false;
@@ -158,8 +153,15 @@ function checkServer() {
         isKillActive = true;
       }
 
-      // console.log("===============");
-      // console.log(response);
+      // kill server here
+      // if(response.data.data.is_remote_enabled == "1") {
+      //   console.log("data returned true");
+      //   isKillActive = false;
+      // } else {
+      //   console.log("data returned false");
+      //   isKillActive = true;
+      // }
+      console.log(response.data);
   })
   .catch(function(err) {
       console.log(err);
@@ -175,7 +177,26 @@ function checkServer() {
   }
 }
 
+/**
+ * block the system
+ */
+function enableBlocker() {
+  let filePath = "";
+  // enable process path
+  if (proc === null) {
+    proc =  execFile(filePath);
+  }
+}
 
+/**
+ * enable the system
+ */
+function disableBlocker() {
+  if (proc) {
+    //kill the process path
+    proc.kill('SIGINT');
+  }
+}
 
 function enablePdChecker() {
   const driveScanner = new DriveListScanner();
