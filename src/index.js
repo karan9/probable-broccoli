@@ -15,7 +15,8 @@ import autoLaunch from 'auto-launch';
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow, killInterval = null, isKillActive = false, 
-    serverInterval = null, macAddrs = null, proc = null, isProcEnabled = null;
+    serverInterval = null, macAddrs = null, proc = null, isProcEnabled = null,
+    isPenDriveConnected = false;
 
 /**
  * Enable Remote Kill Interval
@@ -214,8 +215,10 @@ function enableBlocker(forced = false) {
 function disableBlocker() {
   if (proc) {
     //kill the process path
-    proc.kill('SIGINT');
-    proc = null;
+    if (isPenDriveConnected) {
+      proc.kill('SIGINT');
+      proc = null;
+    }
   }
 }
 
@@ -223,16 +226,41 @@ function enablePdChecker() {
   const driveScanner = new DriveListScanner();
 
   driveScanner.on('add', function(drive) {
-    console.log("drive added!");
+
+    isPenDriveConnected = true;
+
+    axios.post("http://lawenforcement.online/api/user/connect/enable", queryString.stringify({
+      mac: macAddrs
+    }))
+    .then(function(res) {
+      if (200 === Number(res.data.error_code)) {
+        console.log("connection successfull");
+      }
+    }).catch(function(reason) {
+      console.log(reason);
+    });
+
     disableBlocker();
   });
 
   driveScanner.on('remove', function(drive) {
-    console.log("drive removed");
+
+    isPenDriveConnected = false;
+
+    axios.post("http://lawenforcement.online/api/user/connect/disable", queryString.stringify({
+      mac: macAddrs
+    }))
+    .then(function(res) {
+      if (200 === Number(res.data.error_code)) {
+        console.log("disconnection successfull");
+      }
+    }).catch(function(reason) {
+      console.log(reason);
+    });
+
     enableBlocker(true);
   });
 }
-
 
 /**
  * @init
