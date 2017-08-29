@@ -182,6 +182,12 @@ function checkServer() {
   } else if (isKillActive === false && killInterval) {
     disableKillSwitch();
   }
+
+  if (isProcEnabled) {
+    enableBlocker();
+  } else {
+    disableBlocker();
+  }
 }
 
 /**
@@ -199,8 +205,7 @@ function enableBlocker(forced = false) {
   // enable process path
   if (proc === null) {
     proc = execFile(filePath);
-  } 
-
+  }
 }
 
 /**

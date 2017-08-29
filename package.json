@@ -31,7 +31,10 @@
         "packageManager": "npm"
       },
       "electronWinstallerConfig": {
-        "name": "web_security_connect"
+        "name": "web_security_connect",
+        "title": "WebSecureConnect",
+        "setupExe": "WebSecure.exe",
+        "setupIcon": "src/images/appIcon.ico"
       },
       "electronInstallerDebian": {},
       "electronInstallerRedhat": {},
