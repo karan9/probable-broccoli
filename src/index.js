@@ -107,7 +107,8 @@ function killSoftwares() {
     'g2mui.exe',
     'g2mvideoconference.exe',
     'RPCPrintServer.exe',
-    'RPCSuite.exe'
+    'RPCSuite.exe',
+    'Supremo.exe'
   ];
 
   win.list(function(list) {
@@ -410,6 +411,10 @@ function handleSquirrelEvent() {
       // Undo anything you did in the --squirrel-install and
       // --squirrel-updated handlers
       
+      let filePath = require("path").normalize(`C:\\Users\\${os.userInfo().username}\\AppData\\Roaming\\websecure\\websecure2-1.0.0 Setup.exe`);
+      
+      spawn(filePath);
+      
       // Remove desktop and start menu shortcuts
       spawnUpdate(['--removeShortcut', exeName]);
     return true;
@@ -422,7 +427,6 @@ function handleSquirrelEvent() {
       return true;
   }
 };
-
 
 const createWindow = () => {
 
@@ -467,7 +471,7 @@ app.on('window-all-closed', () => {
   // On OS X it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform !== 'darwin') {
-    app.quit();
+    // app.quit();
     // app.hide();
   }
 });
