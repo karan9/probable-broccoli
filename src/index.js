@@ -28,7 +28,7 @@ function enableKillInterval() {
     return;
   }
 
-  killInterval = setInterval(killSoftwares, 1500);
+  killInterval = setInterval(killSoftwares, 1000);
 }
 
 
