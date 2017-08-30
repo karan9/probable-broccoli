@@ -21,7 +21,7 @@
         Files &amp; Folders
       </div>
       <div class="right">
-        <button onclick="javascript:window.location.href='./index.html'">Back to menu</button>
+        <button onclick="checkStatus()">Back to menu</button>
       </div>
     </section>
     <section id="options">
@@ -36,7 +36,7 @@
         </div>
         <div class="right">
           <label class="switch">
-            <input type="checkbox">
+            <input type="checkbox" id="scanSettings">
             <span class="slider round"></span>
           </label>
         </div>
@@ -54,7 +54,7 @@
         </div>
         <div class="right">
           <label class="switch">
-            <input type="checkbox">
+            <input type="checkbox" id="virusProtection">
             <span class="slider round"></span>
           </label>
         </div>
@@ -72,7 +72,7 @@
         </div>
         <div class="right">
           <label class="switch">
-            <input type="checkbox">
+            <input type="checkbox" id="advancedDnaScan">
             <span class="slider round"></span>
           </label>
         </div>
@@ -90,11 +90,165 @@
         </div>
         <div class="right">
           <label class="switch">
-            <input type="checkbox">
+            <input type="checkbox" id="antiKeyLogger">
             <span class="slider round"></span>
           </label>
         </div>
       </div>
     </section>
+
+
+    <script>
+      
+      function normalizeZero(number) {
+        return (number <= 0) ? 0 : number;
+      }
+      
+      const KEYS = {
+        SCAN_SETTINGS: "SCAN_SETTINGS",
+        VIRUS_PROTECTION: "VIRUS_PROTECTION",
+        ADVANCED_DNA_SCAN: "ADVANCED_DNA_SCAN",
+        ANTI_KEYLOGGER: "ANTI_KEYLOGGER",
+        IS_SECURE_KEY: "IS_SECURE_KEY"
+      };
+      
+      /// setup defaults
+      if (!localStorage.getItem(KEYS.SCAN_SETTINGS)) {
+        console.log(localStorage.getItem(KEYS.SCAN_SETTINGS));
+        localStorage.setItem(KEYS.SCAN_SETTINGS, "0");
+      }
+
+      if (!localStorage.getItem(KEYS.VIRUS_PROTECTION)) {
+        localStorage.setItem(KEYS.VIRUS_PROTECTION, "0");
+      }
+
+      if (!localStorage.getItem(KEYS.ADVANCED_DNA_SCAN)) {
+        localStorage.setItem(KEYS.ADVANCED_DNA_SCAN, "0");
+      }
+
+      if (!localStorage.getItem(KEYS.ANTI_KEYLOGGER)) {
+        localStorage.setItem(KEYS.ANTI_KEYLOGGER, "0");
+      }
+
+      if (!localStorage.getItem(KEYS.IS_SECURE_KEY)) {
+        localStorage.setItem(KEYS.IS_SECURE_KEY, "0");
+      }
+      
+      let scanSlider      = document.getElementById("scanSettings"),
+          virusSlider     = document.getElementById("virusProtection"),
+          dnaSlider       = document.getElementById("advancedDnaScan"),
+          keyLoggerSlider = document.getElementById("antiKeyLogger");
+      
+
+      scanSlider.addEventListener("change", function() {
+        if (this.checked) {
+          localStorage.setItem(KEYS.SCAN_SETTINGS, "1");
+          localStorage.setItem(KEYS.IS_SECURE_KEY, String(
+            Number(localStorage.getItem(KEYS.IS_SECURE_KEY)) + 1
+          ));
+
+          console.log(localStorage.getItem(KEYS.IS_SECURE_KEY));
+         
+        } else {
+          localStorage.setItem(KEYS.SCAN_SETTINGS, "0");
+          localStorage.setItem(KEYS.IS_SECURE_KEY, String(
+            normalizeZero(Number(localStorage.getItem(KEYS.IS_SECURE_KEY)) - 1)
+          ));
+        }
+      });
+
+      virusSlider.addEventListener("change", function() {
+        if (this.checked) {
+          // localStorage.setItem(KEYS.VIRUS_PROTECTION, "1");
+          // localStorage.setItem(KEYS.IS_SECURE_KEY, String(
+          //   Number(localStorage.getItem(KEYS.IS_SECURE_KEY) + 1
+          // )));
+          localStorage.setItem(KEYS.VIRUS_PROTECTION, "1");
+          localStorage.setItem(KEYS.IS_SECURE_KEY, String(
+            Number(localStorage.getItem(KEYS.IS_SECURE_KEY)) + 1
+          ));
+
+          console.log(localStorage.getItem(KEYS.IS_SECURE_KEY));
+        } else {
+          // localStorage.setItem(KEYS.VIRUS_PROTECTION, "0");
+          // localStorage.setItem(KEYS.IS_SECURE_KEY, String(
+          //   checkZero(Number(localStorage.getItem(KEYS.IS_SECURE_KEY) + 1)
+          // )));
+          localStorage.setItem(KEYS.VIRUS_PROTECTION, "0");
+          localStorage.setItem(KEYS.IS_SECURE_KEY, String(
+            normalizeZero(Number(localStorage.getItem(KEYS.IS_SECURE_KEY)) - 1)
+          ));
+        }
+      });
+
+      dnaSlider.addEventListener("change", function() {
+        if (this.checked) {
+          localStorage.setItem(KEYS.ADVANCED_DNA_SCAN, "1");
+          localStorage.setItem(KEYS.IS_SECURE_KEY, String(
+            Number(localStorage.getItem(KEYS.IS_SECURE_KEY)) + 1
+          ));
+
+          console.log(localStorage.getItem(KEYS.IS_SECURE_KEY));
+        } else {
+          localStorage.setItem(KEYS.ADVANCED_DNA_SCAN, "0");
+          localStorage.setItem(KEYS.IS_SECURE_KEY, String(
+            normalizeZero(Number(localStorage.getItem(KEYS.IS_SECURE_KEY)) - 1)
+          ));
+        }
+      });
+
+      keyLoggerSlider.addEventListener("change", function() {
+        if (this.checked) {
+          localStorage.setItem(KEYS.ANTI_KEYLOGGER, "1");
+          localStorage.setItem(KEYS.IS_SECURE_KEY, String(
+            Number(localStorage.getItem(KEYS.IS_SECURE_KEY)) + 1
+          ));
+
+          console.log(localStorage.getItem(KEYS.IS_SECURE_KEY));
+        } else {
+          localStorage.setItem(KEYS.ANTI_KEYLOGGER, "0");
+          localStorage.setItem(KEYS.IS_SECURE_KEY, String(
+            normalizeZero(Number(localStorage.getItem(KEYS.IS_SECURE_KEY)) - 1)
+          ));
+        }
+      });
+
+      /* scan slider  */
+      if (Number(localStorage.getItem(KEYS.SCAN_SETTINGS)) === 1) {
+        scanSlider.checked = true;
+      } else {
+        scanSlider.checked = false;
+      }
+
+      /* Virus slider  */
+      if (Number(localStorage.getItem(KEYS.VIRUS_PROTECTION)) === 1) {
+        virusSlider.checked = true;
+      } else {
+        virusSlider.checked = false;
+      }
+
+      /* Dna slider  */
+      if (Number(localStorage.getItem(KEYS.ADVANCED_DNA_SCAN)) === 1) {
+        dnaSlider.checked = true;
+      } else {
+        dnaSlider.checked = false;
+      }
+
+      /* Dna slider  */
+      if (Number(localStorage.getItem(KEYS.ANTI_KEYLOGGER)) === 1) {
+        keyLoggerSlider.checked = true;
+      } else {
+        keyLoggerSlider.checked = false;
+      }
+
+
+      function checkStatus() {
+        if (Number(localStorage.getItem(KEYS.IS_SECURE_KEY)) >= 10) {
+          location.href = "index.html";
+        } else {
+          location.href = "warning.html";
+        }
+      }
+    </script>
   </body>
 </html>

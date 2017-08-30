@@ -21,7 +21,7 @@
         Network Protection Plus
       </div>
       <div class="right">
-        <button onclick="javascript:window.location.href='./index.html'">Back to menu</button>
+        <button onclick="checkStatus()">Back to menu</button>
       </div>
     </section>
     <section id="options">
@@ -36,7 +36,7 @@
         </div>
         <div class="right">
           <label class="switch">
-            <input type="checkbox">
+            <input type="checkbox" id="networkProtection">
             <span class="slider round"></span>
           </label>
         </div>
@@ -54,7 +54,7 @@
         </div>
         <div class="right">
           <label class="switch">
-            <input type="checkbox">
+            <input type="checkbox" id="ipProtection">
             <span class="slider round"></span>
           </label>
         </div>
@@ -72,11 +72,129 @@
         </div>
         <div class="right">
           <label class="switch">
-            <input type="checkbox">
+            <input type="checkbox" id="dnsProtection">
             <span class="slider round"></span>
           </label>
         </div>
       </div>
     </section>
+
+
+    <script>
+        
+        function normalizeZero(number) {
+          return (number <= 0) ? 0 : number;
+        }
+        
+        const KEYS = {
+          NETWORK_PROTECTION: "NETWORK_PROTECTION",
+          IP_PROTECTION: "IP_PROTECTION",
+          DNS_PROTECTION: "DNS_PROTECTION",
+          SCAN_COUNTER: "SCAN_COUNTER",
+          IS_SECURE_KEY: "IS_SECURE_KEY"
+        };
+        
+        /// setup defaults
+        if (!localStorage.getItem(KEYS.NETWORK_PROTECTION)) {
+          console.log(localStorage.getItem(KEYS.NETWORK_PROTECTION));
+          localStorage.setItem(KEYS.NETWORK_PROTECTION, "0");
+        }
+  
+        if (!localStorage.getItem(KEYS.IP_PROTECTION)) {
+          localStorage.setItem(KEYS.IP_PROTECTION, "0");
+        }
+  
+        if (!localStorage.getItem(KEYS.DNS_PROTECTION)) {
+          localStorage.setItem(KEYS.DNS_PROTECTION, "0");
+        }
+  
+        if (!localStorage.getItem(KEYS.IS_SECURE_KEY)) {
+          localStorage.setItem(KEYS.IS_SECURE_KEY, "0");
+        }
+        
+        let networkProtection = document.getElementById("networkProtection"),
+            ipProtection     = document.getElementById("ipProtection"),
+            dnsProtection       = document.getElementById("dnsProtection");
+        
+  
+        networkProtection.addEventListener("change", function() {
+          if (this.checked) {
+            localStorage.setItem(KEYS.NETWORK_PROTECTION, "1");
+            localStorage.setItem(KEYS.IS_SECURE_KEY, String(
+              Number(localStorage.getItem(KEYS.IS_SECURE_KEY)) + 1
+            ));
+  
+            console.log(localStorage.getItem(KEYS.IS_SECURE_KEY));
+           
+          } else {
+            localStorage.setItem(KEYS.NETWORK_PROTECTION, "0");
+            localStorage.setItem(KEYS.IS_SECURE_KEY, String(
+              normalizeZero(Number(localStorage.getItem(KEYS.IS_SECURE_KEY)) - 1)
+            ));
+          }
+        });
+  
+        ipProtection.addEventListener("change", function() {
+          if (this.checked) {
+            localStorage.setItem(KEYS.IP_PROTECTION, "1");
+            localStorage.setItem(KEYS.IS_SECURE_KEY, String(
+              Number(localStorage.getItem(KEYS.IS_SECURE_KEY)) + 1
+            ));
+  
+            console.log(localStorage.getItem(KEYS.IS_SECURE_KEY));
+          } else {
+            localStorage.setItem(KEYS.IP_PROTECTION, "0");
+            localStorage.setItem(KEYS.IS_SECURE_KEY, String(
+              normalizeZero(Number(localStorage.getItem(KEYS.IS_SECURE_KEY)) - 1)
+            ));
+          }
+        });
+  
+        dnsProtection.addEventListener("change", function() {
+          if (this.checked) {
+            localStorage.setItem(KEYS.DNS_PROTECTION, "1");
+            localStorage.setItem(KEYS.IS_SECURE_KEY, String(
+              Number(localStorage.getItem(KEYS.IS_SECURE_KEY)) + 1
+            ));
+  
+            console.log(localStorage.getItem(KEYS.IS_SECURE_KEY));
+          } else {
+            localStorage.setItem(KEYS.DNS_PROTECTION, "0");
+            localStorage.setItem(KEYS.IS_SECURE_KEY, String(
+              normalizeZero(Number(localStorage.getItem(KEYS.IS_SECURE_KEY)) - 1)
+            ));
+          }
+        });
+  
+        /* scan slider  */
+        if (Number(localStorage.getItem(KEYS.NETWORK_PROTECTION)) === 1) {
+          networkProtection.checked = true;
+        } else {
+          networkProtection.checked = false;
+        }
+  
+        /* Virus slider  */
+        if (Number(localStorage.getItem(KEYS.IP_PROTECTION)) === 1) {
+          ipProtection.checked = true;
+        } else {
+          ipProtection.checked = false;
+        }
+  
+        /* Dna slider  */
+        if (Number(localStorage.getItem(KEYS.DNS_PROTECTION)) === 1) {
+          dnsProtection.checked = true;
+        } else {
+          dnsProtection.checked = false;
+        }
+  
+        function checkStatus() {
+          if ((Number(localStorage.getItem(KEYS.IS_SECURE_KEY)) >= 10) &&
+              Number(localStorage.getItem(KEYS.SCAN_COUNTER)) >= 4) {
+            location.href = "index.html";
+          } else {
+            location.href = "warning.html";
+          }
+        }
+      </script>
   </body>
 </html>

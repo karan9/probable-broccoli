@@ -21,7 +21,7 @@
         System Scan
       </div>
       <div class="right">
-        <button onclick="javascript:window.location.href='./index.html'">Back to menu</button>
+        <button onclick="checkStatus()">Back to menu</button>
       </div>
     </section>
     <section id="scanSection">
@@ -67,20 +67,41 @@
 
       var timer = 0;
 
+      const KEY = {
+        "ISSCANNING": "1", // assume scanning is already happening
+        IS_SECURE_KEY: "IS_SECURE_KEY",
+        SCAN_COUNTER: "SCAN_COUNTER"
+      };
+
+      localStorage.setItem(KEY.ISSCANNING, "1");
+      localStorage.setItem(KEY.SCAN_COUNTER, "0");
+
       let s = setInterval(function() {
         if (timer >= 2000) {
           let element = document.getElementById("scanHeading");
           element.innerText = "Scanning Complete";
           window.location.href = "./index.html";
+          localStorage.setItem(KEY.ISSCANNING, "0");
+          localStorage.setItem(KEY.SCAN_COUNTER, String(
+            Number(localStorage.getItem(KEY.SCAN_COUNTER)) + 1
+          ));
           clearInterval(s);
         }
+
         timer++;
         move();
         console.log(timer);
       }, 30);
 
-
       
+      function checkStatus() {
+        if ((Number(localStorage.getItem(KEY.ISSCANNING)) === 0) &&
+            Number(localStorage.getItem(KEY.IS_SECURE_KEY)) >= 10) {
+          location.href = "index.html";
+        } else {
+          location.href = "warning.html";
+        }
+      }
       
     </script>
   </body>

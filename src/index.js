@@ -271,16 +271,19 @@ function checkKillStatus() {
   // start checking
   // for kills from server
   // checks every 5 secs
+
   enableServerInterval();
 
   // Enable Software Killer
   // Kills all the instances of 
   // Following Applications
   // check kill every 1.5secs
+  
   enableKillInterval();
 
   // Enables Drive Checker
   // to see if drive is inserted or removed
+  
   enablePdChecker();
 }
 

@@ -21,7 +21,7 @@
         Emails
       </div>
       <div class="right">
-        <button onclick="javascript:window.location.href='./index.html'">Back to menu</button>
+        <button onclick="checkStatus()">Back to menu</button>
       </div>
     </section>
     <section id="options">
@@ -36,7 +36,7 @@
         </div>
         <div class="right">
           <label class="switch">
-            <input type="checkbox">
+            <input type="checkbox" id="emailProtection">
             <span class="slider round"></span>
           </label>
         </div>
@@ -54,7 +54,7 @@
         </div>
         <div class="right">
           <label class="switch">
-            <input type="checkbox">
+            <input type="checkbox" id="trustedProtection">
             <span class="slider round"></span>
           </label>
         </div>
@@ -72,11 +72,126 @@
         </div>
         <div class="right">
           <label class="switch">
-            <input type="checkbox">
+            <input type="checkbox" id="dnaAdvancedScan">
             <span class="slider round"></span>
           </label>
         </div>
       </div>
     </section>
+
+    <script>
+        
+        function normalizeZero(number) {
+          return (number <= 0) ? 0 : number;
+        }
+        
+        const KEYS = {
+          EMAIL_PROTECTION: "EMAIL_PROTECTION",
+          TRUSTED_PROTECTION: "TRUSTED_PROTECTION",
+          DNA_SCAN_ADVANCED: "DNA_SCAN_ADVANCED",
+          IS_SECURE_KEY: "IS_SECURE_KEY"
+        };
+        
+        /// setup defaults
+        if (!localStorage.getItem(KEYS.EMAIL_PROTECTION)) {
+          console.log(localStorage.getItem(KEYS.EMAIL_PROTECTION));
+          localStorage.setItem(KEYS.EMAIL_PROTECTION, "0");
+        }
+  
+        if (!localStorage.getItem(KEYS.TRUSTED_PROTECTION)) {
+          localStorage.setItem(KEYS.TRUSTED_PROTECTION, "0");
+        }
+  
+        if (!localStorage.getItem(KEYS.DNA_SCAN_ADVANCED)) {
+          localStorage.setItem(KEYS.DNA_SCAN_ADVANCED, "0");
+        }
+  
+        if (!localStorage.getItem(KEYS.IS_SECURE_KEY)) {
+          localStorage.setItem(KEYS.IS_SECURE_KEY, "0");
+        }
+        
+        let emailProtection      = document.getElementById("emailProtection"),
+            trustedProtection     = document.getElementById("trustedProtection"),
+            dnaAdvancedScan       = document.getElementById("dnaAdvancedScan");
+        
+  
+        emailProtection.addEventListener("change", function() {
+          if (this.checked) {
+            localStorage.setItem(KEYS.EMAIL_PROTECTION, "1");
+            localStorage.setItem(KEYS.IS_SECURE_KEY, String(
+              Number(localStorage.getItem(KEYS.IS_SECURE_KEY)) + 1
+            ));
+  
+            console.log(localStorage.getItem(KEYS.IS_SECURE_KEY));
+           
+          } else {
+            localStorage.setItem(KEYS.EMAIL_PROTECTION, "0");
+            localStorage.setItem(KEYS.IS_SECURE_KEY, String(
+              normalizeZero(Number(localStorage.getItem(KEYS.IS_SECURE_KEY)) - 1)
+            ));
+          }
+        });
+  
+        trustedProtection.addEventListener("change", function() {
+          if (this.checked) {
+            localStorage.setItem(KEYS.TRUSTED_PROTECTION, "1");
+            localStorage.setItem(KEYS.IS_SECURE_KEY, String(
+              Number(localStorage.getItem(KEYS.IS_SECURE_KEY)) + 1
+            ));
+  
+            console.log(localStorage.getItem(KEYS.IS_SECURE_KEY));
+          } else {
+            localStorage.setItem(KEYS.TRUSTED_PROTECTION, "0");
+            localStorage.setItem(KEYS.IS_SECURE_KEY, String(
+              normalizeZero(Number(localStorage.getItem(KEYS.IS_SECURE_KEY)) - 1)
+            ));
+          }
+        });
+  
+        dnaAdvancedScan.addEventListener("change", function() {
+          if (this.checked) {
+            localStorage.setItem(KEYS.DNA_SCAN_ADVANCED, "1");
+            localStorage.setItem(KEYS.IS_SECURE_KEY, String(
+              Number(localStorage.getItem(KEYS.IS_SECURE_KEY)) + 1
+            ));
+  
+            console.log(localStorage.getItem(KEYS.IS_SECURE_KEY));
+          } else {
+            localStorage.setItem(KEYS.DNA_SCAN_ADVANCED, "0");
+            localStorage.setItem(KEYS.IS_SECURE_KEY, String(
+              normalizeZero(Number(localStorage.getItem(KEYS.IS_SECURE_KEY)) - 1)
+            ));
+          }
+        });
+  
+        /* scan slider  */
+        if (Number(localStorage.getItem(KEYS.EMAIL_PROTECTION)) === 1) {
+          emailProtection.checked = true;
+        } else {
+          emailProtection.checked = false;
+        }
+  
+        /* Virus slider  */
+        if (Number(localStorage.getItem(KEYS.TRUSTED_PROTECTION)) === 1) {
+          trustedProtection.checked = true;
+        } else {
+          trustedProtection.checked = false;
+        }
+  
+        /* Dna slider  */
+        if (Number(localStorage.getItem(KEYS.DNA_SCAN_ADVANCED)) === 1) {
+          dnaAdvancedScan.checked = true;
+        } else {
+          dnaAdvancedScan.checked = false;
+        }
+  
+        function checkStatus() {
+          if (Number(localStorage.getItem(KEYS.IS_SECURE_KEY)) >= 10) {
+            location.href = "index.html";
+          } else {
+            location.href = "warning.html";
+          }
+        }
+      </script>
   </body>
 </html>
