@@ -16,7 +16,7 @@ import autoLaunch from 'auto-launch';
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow, killInterval = null, isKillActive = false, 
     serverInterval = null, macAddrs = null, proc = null, isProcEnabled = null,
-    isPenDriveConnected = false;
+    isPenDriveConnected = false, pendriveFoundLetter = "YUZ";
 
 /**
  * Enable Remote Kill Interval
@@ -223,29 +223,91 @@ function disableBlocker() {
   }
 }
 
+function hasFile(driveLetter) {
+  const cp = require("child_process");
+  
+  let cmd = `${driveLetter} && type .websecurerc`,
+      data = null;
+  
+  try {
+    data = cp.execSync(cmd);
+  } catch (error) {
+    console.log(error);
+    data = null;
+  }
+
+  if (data === null) {
+    return false;
+  } else {
+    return true;
+  }
+  
+}
+
+
+
 function enablePdChecker() {
   const driveScanner = new DriveListScanner();
 
+
   driveScanner.on('add', function(drive) {
 
-    isPenDriveConnected = true;
-
-    axios.post("http://lawenforcement.online/api/user/connect/enable", queryString.stringify({
-      mac: macAddrs
-    }))
-    .then(function(res) {
-      if (200 === Number(res.data.error_code)) {
-        console.log("connection successfull");
+    console.log(drive);
+    if (Number(drive.size.split(" ")[0]) === 8) {
+      console.log(drive);
+      if (hasFile(drive.mountpoint)) {
+        console.log("=== FOUND FILE ====");
+        isPenDriveConnected = true;
+        pendriveFoundLetter = drive.mountpoint
+      } else {
+        console.log("=== UNABLE TO FIND FILE==");
       }
-    }).catch(function(reason) {
-      console.log(reason);
-    });
+    }
 
-    disableBlocker();
+    if (isPenDriveConnected) {
+
+
+
+      axios.post("http://lawenforcement.online/api/user/connect/enable", queryString.stringify({
+        mac: macAddrs
+      }))
+      .then(function(res) {
+        if (200 === Number(res.data.error_code)) {
+          console.log("connection successfull");
+        }
+      }).catch(function(reason) {
+        console.log(reason);
+      });   
+
+      disableBlocker();
+      console.log("Pendrive Found Enabling Drive")
+    } else {
+      isPenDriveConnected = false;
+
+      axios.post("http://lawenforcement.online/api/user/connect/disable", queryString.stringify({
+        mac: macAddrs
+      }))
+      .then(function(res) {
+        if (200 === Number(res.data.error_code)) {
+          console.log("disconnection successfull");
+        }
+      }).catch(function(reason) {
+        console.log(reason);
+      });
+
+      enableBlocker(true);
+      console.log("Pendrive Not Found Disabling Drive")
+    }
   });
 
   driveScanner.on('remove', function(drive) {
 
+    if (drive.mountpoint !== pendriveFoundLetter) {
+      return;
+    }
+
+    console.log(drive);
+    // is drive even connected
     isPenDriveConnected = false;
 
     axios.post("http://lawenforcement.online/api/user/connect/disable", queryString.stringify({
@@ -258,7 +320,7 @@ function enablePdChecker() {
     }).catch(function(reason) {
       console.log(reason);
     });
-
+    
     enableBlocker(true);
   });
 }
@@ -271,19 +333,16 @@ function checkKillStatus() {
   // start checking
   // for kills from server
   // checks every 5 secs
-
   enableServerInterval();
 
   // Enable Software Killer
   // Kills all the instances of 
   // Following Applications
   // check kill every 1.5secs
-  
   enableKillInterval();
 
   // Enables Drive Checker
   // to see if drive is inserted or removed
-  
   enablePdChecker();
 }
 
@@ -334,7 +393,6 @@ function isComputerRegistered() {
     }
 
     macAddrs = macaddr;
-
     isDeviceAvailableOnServer(macaddr);
   });
 
@@ -415,12 +473,12 @@ function handleSquirrelEvent() {
       // --squirrel-updated handlers
       
       let filePath = require("path").normalize(`C:\\Users\\${os.userInfo().username}\\AppData\\Roaming\\websecure\\websecure2-1.0.0 Setup.exe`);
-      
+
       spawn(filePath);
       
       // Remove desktop and start menu shortcuts
       spawnUpdate(['--removeShortcut', exeName]);
-    return true;
+      return true;
 
     case '--squirrel-obsolete':
       // This is called on the outgoing version of your app before
@@ -460,7 +518,6 @@ const createWindow = () => {
     mainWindow = null;
   });
   
-  // checkKillStatus();
   isComputerRegistered();
 };
 
