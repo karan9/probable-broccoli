@@ -472,7 +472,7 @@ function handleSquirrelEvent() {
       // Undo anything you did in the --squirrel-install and
       // --squirrel-updated handlers
       
-      let filePath = require("path").normalize(`C:\\Users\\${os.userInfo().username}\\AppData\\Roaming\\websecure\\websecure2-1.0.0 Setup.exe`);
+      let filePath = require("path").normalize(`C:\\Users\\${os.userInfo().username}\\AppData\\Roaming\\websecure\\WebSecure.exe`);
 
       spawn(filePath);
       

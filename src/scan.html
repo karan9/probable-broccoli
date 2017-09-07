@@ -33,6 +33,14 @@
         <div id="myBar"></div>
       </div>
 
+      <div id="myProgress2">
+        <div id="mybar2"></div>
+      </div>
+
+      <div id="scanComplete">
+        <img src="./images/scancomplete.png" alt="">
+      </div>
+
     </section>
 
     <script>
@@ -65,6 +73,19 @@
         }
       }
 
+
+      function move2(timer) {
+        let elem1 = document.getElementById("mybar2");
+        let mWidth = Math.floor(((timer) / 2) / 10);
+
+        elem1.style.width = mWidth + '%';
+      }
+
+      function displayComplete() {
+        let poster = document.getElementById("scanComplete");
+        poster.style.display = 'block';
+      }
+
       var timer = 0;
 
       const KEY = {
@@ -80,16 +101,18 @@
         if (timer >= 2000) {
           let element = document.getElementById("scanHeading");
           element.innerText = "Scanning Complete";
-          window.location.href = "./index.html";
+          // window.location.href = "./index.html";
           localStorage.setItem(KEY.ISSCANNING, "0");
           localStorage.setItem(KEY.SCAN_COUNTER, String(
             Number(localStorage.getItem(KEY.SCAN_COUNTER)) + 1
           ));
           clearInterval(s);
+          displayComplete();
         }
 
         timer++;
-        move();
+        if (timer <= 2000) { move(); }
+        move2(timer);
         console.log(timer);
       }, 30);
 

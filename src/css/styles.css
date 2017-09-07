@@ -7,6 +7,7 @@
 
 :root {
   --tz-red: #a34545;
+  --tz-green: #40BC40;
 }
 
 html {
@@ -307,6 +308,24 @@ input:checked + .slider:before {
   width: 1%;
   height: 20px;
   background-color: var(--tz-red);
+}
+
+#myProgress2 {
+  margin-top: 50px;
+  width: 100%;
+  background-color: #ddd;
+}
+
+#mybar2 {
+  width: 1%;
+  height: 20px;
+  background-color: var(--tz-green);
+}
+
+#scanComplete {
+  margin-left: -20px;
+  margin-top: 30px;
+  display: none;
 }
 
 #scanSection {
