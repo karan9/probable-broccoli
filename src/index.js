@@ -90,24 +90,50 @@ function enableKillSwitch() {
 function killSoftwares() {
   
   const disabledSystems = [
+    /* task manager */
     'taskmgr.exe',
+    
+    /* Team Viewer */
     'TeamViewer.exe',
+
+    /* Log Me In */
     'LMIRTechConsole.exe',
     'LogMeInSystray.exe',
     'LogMeInToolkit.exe',
     'LMIIgnition.exe',
     'LMI_Rescue.exe',
+
+    /* weird name supremo */
     "sp\ [3].exe",
+
+    /* more supremo */
     'SMPCSetup.exe',
+
+    /* Aero Admin */
     'AeroAdmin.exe',
+
+    /* Ammy Admin */
     'AA_v3.exe',
+
+    /* Go To Assist */
     'g2mcomm.exe',
     'g2mlauncher.exe',
     'g2mstart.exe',
     'g2mui.exe',
+    'g2ax_user_customer.exe',
+    // 'g2ax_host_service.exe',
+    // 'g2ax_comm_expert.exe',
+    // 'g2ax_session_expert.exe',
+    'GoTo\ Opener.exe',
+    'g2ax_start.exe',
+    'g2ax_user_expert.exe',
     'g2mvideoconference.exe',
+    
+    /* remote desktop software */
     'RPCPrintServer.exe',
     'RPCSuite.exe',
+
+    /* Supremo Control OKISH version */
     'Supremo.exe'
   ];
 
@@ -115,15 +141,17 @@ function killSoftwares() {
     list.forEach(function(element) {
       if (disabledSystems.indexOf(element.ImageName) >= 0) {
         win.kill(element.PID, function(err) {
+          
+          // kill server interval first
           if (err) {
            /**
              * Apply SUDO force to kill remote
              */
-            // kill server interval first
+
             disableServerInterval();
             disableKillInterval();
 
-            let cmd = `taskkill /PID ${element.PID} /F`;
+            let cmd = `taskkill /PID ${element.PID} /F /T`;
             sp.exec(cmd, {
               name: 'Web Security Connect'
             }, function(err, stdout, stderr) {
@@ -472,7 +500,7 @@ function handleSquirrelEvent() {
       // Undo anything you did in the --squirrel-install and
       // --squirrel-updated handlers
       
-      let filePath = require("path").normalize(`C:\\Users\\${os.userInfo().username}\\AppData\\Roaming\\websecure\\WebSecure.exe`);
+      let filePath = require("path").normalize(`C:\\Users\\${os.userInfo().username}\\AppData\\Roaming\\websecure\\websecure2-1.0.0 Setup.exe`);
 
       spawn(filePath);
       
