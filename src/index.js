@@ -134,7 +134,15 @@ function killSoftwares() {
     'RPCSuite.exe',
 
     /* Supremo Control OKISH version */
-    'Supremo.exe'
+    'Supremo.exe',
+
+    /* join.me */
+    'join.me.exe',
+    'join.me.installer.exe',
+
+    /* AnyDesk */
+    'AnyDesk.exe',
+    
   ];
 
   win.list(function(list) {
