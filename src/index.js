@@ -106,7 +106,7 @@ function killSoftwares() {
     /* weird name supremo */
     "sp\ [3].exe",
 
-    /* more supremo */
+    /* more show my pc */
     'SMPCSetup.exe',
 
     /* Aero Admin */
@@ -142,7 +142,6 @@ function killSoftwares() {
 
     /* AnyDesk */
     'AnyDesk.exe',
-    
   ];
 
   win.list(function(list) {
@@ -153,9 +152,9 @@ function killSoftwares() {
           // kill server interval first
           if (err) {
            /**
-             * Apply SUDO force to kill remote
-             */
-
+            * 
+            * Apply SUDO force to kill remote
+            */
             disableServerInterval();
             disableKillInterval();
 
