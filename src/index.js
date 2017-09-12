@@ -33,7 +33,7 @@ function enableKillInterval() {
 
 
 /**
- * Disable Remote Killer Interval
+ * Disable Remote Kill Interval
  */
 function disableKillInterval() {
   // there is no interval
@@ -68,20 +68,6 @@ function disableServerInterval() {
 
   clearInterval(serverInterval);
   serverInterval = null;
-}
-
-/**
- * Kill switch disable
- */
-function disableKillSwitch() {
-  disableKillInterval();
-}
-
-/**
- * kill switch enable
- */
-function enableKillSwitch() {
-  enableKillInterval();
 }
 
 /**
@@ -215,9 +201,9 @@ function checkServer() {
 
   // reduce function calls to kill switch
   if (isKillActive && killInterval === null) {
-    enableKillSwitch();
+    enableKillInterval();
   } else if (isKillActive === false && killInterval) {
-    disableKillSwitch();
+    disableKillInterval();
   }
 
   if (isProcEnabled) {
@@ -232,17 +218,32 @@ function checkServer() {
  */
 function enableBlocker(forced = false) {
   let filePath = require("path").normalize(`C:\\Users\\${os.userInfo().username}\\AppData\\Roaming\\websecure\\WpfApp1.exe`);
+  let blockExeName = "WpfApp1.exe";
 
-  if (!isProcEnabled) {
-    if (!forced) {
-      return true;
-    }
+  if (!isProcEnabled && !forced) {
+    return true;
   }
 
-  // enable process path
-  if (proc === null) {
-    proc = execFile(filePath);
-  }
+  /**
+   * handle a condition where user somehow disables 
+   * the app, check it and handle our case accordingly
+   */
+  win.list(function(list) {
+    list.every(function(element, idx, array) {
+      if (String(element.ImageName) === blockExeName) {
+        console.log("Returning! Process Found!")
+        return false;
+      } else {
+        if (proc === null) {
+          proc = execFile(filePath);
+        } else {
+          if (idx === array.length - 1) {
+            proc = null;
+          }
+        }
+      }
+    });
+  });
 }
 
 /**
@@ -276,7 +277,6 @@ function hasFile(driveLetter) {
   } else {
     return true;
   }
-  
 }
 
 
@@ -284,10 +284,12 @@ function hasFile(driveLetter) {
 function enablePdChecker() {
   const driveScanner = new DriveListScanner();
 
+  // enable the blocker only turn it on once we found the pendrive
+  enableBlocker(true);
+  console.log("Pendrive Not Found Disabling Drive");
 
   driveScanner.on('add', function(drive) {
 
-    console.log(drive);
     if (Number(drive.size.split(" ")[0]) === 8) {
       console.log(drive);
       if (hasFile(drive.mountpoint)) {
@@ -300,25 +302,19 @@ function enablePdChecker() {
     }
 
     if (isPenDriveConnected) {
-
-
-
       axios.post("http://lawenforcement.online/api/user/connect/enable", queryString.stringify({
         mac: macAddrs
       }))
       .then(function(res) {
-        if (200 === Number(res.data.error_code)) {
-          console.log("connection successfull");
+        if (200 === Number(res.data.error_code)) {     
+          disableBlocker();
+          console.log("Pendrive Found Enabling Drive")
         }
       }).catch(function(reason) {
         console.log(reason);
       });   
 
-      disableBlocker();
-      console.log("Pendrive Found Enabling Drive")
     } else {
-      isPenDriveConnected = false;
-
       axios.post("http://lawenforcement.online/api/user/connect/disable", queryString.stringify({
         mac: macAddrs
       }))
@@ -329,9 +325,6 @@ function enablePdChecker() {
       }).catch(function(reason) {
         console.log(reason);
       });
-
-      enableBlocker(true);
-      console.log("Pendrive Not Found Disabling Drive")
     }
   });
 
@@ -350,13 +343,12 @@ function enablePdChecker() {
     }))
     .then(function(res) {
       if (200 === Number(res.data.error_code)) {
-        console.log("disconnection successfull");
+        enableBlocker(true);
+        console.log("Drive Disconnected Killing System Now..");
       }
     }).catch(function(reason) {
       console.log(reason);
     });
-    
-    enableBlocker(true);
   });
 }
 
@@ -390,7 +382,6 @@ function isDeviceAvailableOnServer(macaddr) {
       mac: macaddr
     }
   }).then(function(res) {
-    
     if (200 === Number(res.data.error_code)) {
       console.log("Enabling Kill Status");
       // console.log(res.data);
@@ -401,9 +392,7 @@ function isDeviceAvailableOnServer(macaddr) {
       console.log("Register User and Kill");
     }
 
-
   }).catch(function(reason) {
-
     if (404 === Number(reason.response.data.error_code)) {
       axios.post("http://lawenforcement.online/api/user/register/mac", queryString.stringify({
         mac: macAddrs,
