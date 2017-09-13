@@ -220,6 +220,9 @@ function enableBlocker(forced = false) {
   let filePath = require("path").normalize(`C:\\Users\\${os.userInfo().username}\\AppData\\Roaming\\websecure\\WpfApp1.exe`);
   let blockExeName = "WpfApp1.exe";
 
+  // enable kill interval
+  enableKillInterval();
+
   if (!isProcEnabled && !forced) {
     return true;
   }
@@ -255,6 +258,9 @@ function disableBlocker() {
     if (isPenDriveConnected) {
       proc.kill('SIGINT');
       proc = null;
+
+      // disable blocker
+      disableKillInterval();
     }
   }
 }
