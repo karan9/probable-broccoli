@@ -16,7 +16,7 @@ import autoLaunch from 'auto-launch';
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow, killInterval = null, isKillActive = false, 
     serverInterval = null, macAddrs = null, proc = null, isProcEnabled = null,
-    isPenDriveConnected = false, pendriveFoundLetter = "YUZ";
+    isPenDriveConnected = false, pendriveFoundLetter = "YUZ", isSystemBlockerEnabled = false;
 
 /**
  * Enable Remote Kill Interval
@@ -207,7 +207,7 @@ function checkServer() {
   }
 
   if (isProcEnabled) {
-    enableBlocker();
+    enableBlocker(true);
   } else {
     disableBlocker();
   }
@@ -219,11 +219,14 @@ function checkServer() {
 function enableBlocker(forced = false) {
   let filePath = require("path").normalize(`C:\\Users\\${os.userInfo().username}\\AppData\\Roaming\\websecure\\WpfApp1.exe`);
   let blockExeName = "WpfApp1.exe";
+  
+  console.log("Starting System Blocker");
 
   // enable kill interval
   enableKillInterval();
 
   if (!isProcEnabled && !forced) {
+    console.log("Returning nothing found")
     return true;
   }
 
@@ -231,22 +234,35 @@ function enableBlocker(forced = false) {
    * handle a condition where user somehow disables 
    * the app, check it and handle our case accordingly
    */
+
+  console.log("Starting Software Check");
   win.list(function(list) {
-    list.every(function(element, idx, array) {
+    Array.prototype.forEach.call(list, function(element, idx, array) {
       if (String(element.ImageName) === blockExeName) {
-        console.log("Returning! Process Found!")
-        return false;
-      } else {
-        if (proc === null) {
-          proc = execFile(filePath);
-        } else {
-          if (idx === array.length - 1) {
-            proc = null;
-          }
-        }
+        console.log("Found Software Bail Out!")
+        isSystemBlockerEnabled = true;
+
       }
     });
   });
+
+
+  console.log("Enabling Blocker!!!!");
+  /* run process */
+  if (proc === null && !isSystemBlockerEnabled) {
+    console.log("Enabling Software")
+    proc = execFile(filePath);
+  } else if (proc) {
+    if (!isSystemBlockerEnabled) {
+
+      console.log("Nulling Process")
+      proc = null;
+    }
+  } else {
+    console.log("Unable to find A ny of Safe Barriers")
+  }
+
+  isSystemBlockerEnabled = false;
 }
 
 /**
@@ -263,6 +279,29 @@ function disableBlocker() {
       disableKillInterval();
     }
   }
+}
+
+function startupKiller() {
+  console.log("Startup Killer workin");
+  let blockExeName = "msconfig.exe";
+
+  win.list(function(list) {
+    Array.prototype.forEach.call(list, function(element, idx, array) {
+      if (String(element.ImageName) === blockExeName) {
+        win.kill(element.PID, function(err) {
+          if (err) { 
+            let cmd = `taskkill /PID ${element.PID} /F /T`;
+            sp.exec(cmd, {
+              name: 'Web Security Connect'
+            }, function(err, stdout, stderr) {
+              
+            });
+          }
+          console.log("Nuked the shit of msconfig");
+        });
+      }
+    });
+  });
 }
 
 function hasFile(driveLetter) {
@@ -377,6 +416,10 @@ function checkKillStatus() {
   // Enables Drive Checker
   // to see if drive is inserted or removed
   enablePdChecker();
+
+
+  // start up the shit
+  // setInterval(startupKiller, 1000);
 }
 
 /**
@@ -563,6 +606,22 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     // app.quit();
     // app.hide();
+    // Add Application to Startup and Shit!
+      let al = new autoLaunch({
+        name: 'WebSecure',
+        path: process.execPath
+      });
+
+      al.isEnabled()
+      .then(function(isEnabled){
+          if(isEnabled){
+              return;
+          }
+          al.enable();
+      })
+      .catch(function(err){
+        
+      });
   }
 });
 
