@@ -3,6 +3,8 @@ import axios from 'axios';
 import queryString from 'querystring';
 import os from 'os';
 
+import Server from './Server'
+
 class User {
 
   /**
@@ -29,6 +31,8 @@ class User {
       case 200:
         this.successCallback("User is Successfully Registered");
         console.log("Mac is " + this._getCurrentMac());
+        // start checking server
+        Server.enableServerInterval();
         break;
       case 404:
         this.successCallback("Unable to register user");
@@ -65,6 +69,8 @@ class User {
       case 200:
         this.successCallback("User is Already Registered, Begin Checking Server");
         console.log("Mac is: " + this._getCurrentMac());
+        // start checking server
+        Server.enableServerInterval();
         break;
       case 404:
         this.successCallback("User Not Found, Starting Registeration Process");
