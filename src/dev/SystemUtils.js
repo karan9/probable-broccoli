@@ -1,9 +1,10 @@
 import { execFile } from 'child_process'; 
 import path from 'path';
 import os from 'os';
-
 import * as win from 'node-windows';
+import sp from 'sudo-prompt';
 
+import Server from './Server';
 
 class SystemUtils {
 
@@ -11,6 +12,9 @@ class SystemUtils {
 
     this.systemDisableProc = null;
     this.isSystemBlockerEnabled = false;
+    this.softwareKillInterval = null;
+    this.isKillEnabledByBlocker = false;
+    this.SOFTWARE_KILL_INTERVAL = 1300;
 
     this.SOFTWARE_KILL_LIST = [
       /* task manager */
@@ -68,10 +72,45 @@ class SystemUtils {
     ];
   }
 
+  killSoftwares() {
+    win.list((list) => {
+      list.forEach((element) => {
+        if (this.SOFTWARE_KILL_LIST.indexOf(element.ImageName) >= 0) {
+          win.kill(element.PID, (err) => {
+            if (err) {
+              Server.disableServerInterval();
+              this.disableSoftwareKill();
+              
+              let cmd = `taskkill /PID ${element.PID} /F /T`;
+              sp.exec(cmd, {
+                name: 'Web Security Connect'
+              }, (err, stdout, stderr) => {
+                this.enableSoftwareKill();
+                Server.enableServerInterval();
+              });
+  
+              return;
+            }
+            // DEBUG_LOG
+            console.log("Program Killed");
+          });
+        }
+      });
+    });
+  }
+
   /**
    * enables the Software Killer
    */
   enableSoftwareKill() {
+    if (this.softwareKillInterval) {
+      // kill already running
+      return;
+    }
+
+    /* setup kill interval */
+    this.softwareKillInterval = setInterval(this.killSoftwares.bind(this), this.SOFTWARE_KILL_INTERVAL);
+
     console.log("Enabling Software Killer");
   }
 
@@ -80,7 +119,16 @@ class SystemUtils {
    * disables the Software Killer
    */
   disableSoftwareKill() {
-    console.log("Disabling Software Killer");
+    if (this.softwareKillInterval) {
+
+      if (this.isKillEnabledByBlocker) {
+        return;
+      }
+
+      clearInterval(this.softwareKillInterval);
+      this.softwareKillInterval = null;
+      console.log("Software Killer Disabled");
+    }
   }
 
   /**
@@ -93,6 +141,10 @@ class SystemUtils {
     
     console.log("System Blocker Called");
     console.log("FIle Path is " + filePath);
+
+    // enable software killer
+    this.isKillEnabledByBlocker = true;
+    this.enableSoftwareKill();
 
     if (this.systemDisableProc) {
       console.log("System blocker already Running");  
@@ -132,6 +184,10 @@ class SystemUtils {
    * disables the system blocker
    */
   disableSystemBlocker() {
+    // disable software killer
+    this.isKillEnabledByBlocker = false;
+    this.disableSoftwareKill();
+    
     if (this.systemDisableProc) {
       this.systemDisableProc.kill('SIGINT');
       this.systemDisableProc = null;
